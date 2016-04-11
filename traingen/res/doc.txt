@@ -1,0 +1,20 @@
+traingen - generate train scenarios
+
+usage:
+  traingen [-n N] [--stop=STOP_PARAMS ...] [options]
+
+options:
+  -n, --number-entrance-areas=N
+       number of entrance areas [default: 2].
+  --stop=STOP_PARAMS
+       definition for a stop; format: <time>,<side>,<number_people>. <time>
+       is the simulation time point of the stop; <side> must be either "left"
+       or "right"; <number_people> is the total number of people entering the
+       train.
+  --block-exits
+       block exits so that agents are forced to walk to their seats inside
+       the train.
+  --block-ends
+       block the ends of the train.
+  --annotate
+       annotate JSON with comments.
