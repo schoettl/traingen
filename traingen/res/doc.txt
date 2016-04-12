@@ -18,3 +18,5 @@ options:
        block the ends of the train.
   --annotate
        [not working] annotate JSON with comments.
+  -h, --help
+       print this help message.

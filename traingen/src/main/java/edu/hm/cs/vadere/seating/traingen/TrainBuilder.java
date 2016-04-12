@@ -3,9 +3,11 @@ package edu.hm.cs.vadere.seating.traingen;
 import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
+import attributes.AttributesBuilder;
 import attributes.scenario.AttributesObstacle;
 import attributes.scenario.AttributesSource;
 import attributes.scenario.AttributesTarget;
+import attributes.scenario.AttributesTopography;
 import geometry.shapes.VRectangle;
 import geometry.shapes.VShape;
 import scenario.Obstacle;
@@ -26,19 +28,12 @@ public class TrainBuilder {
 	private TopographyBuilder topographyBuilder;
 	private int numberOfEntranceAreas = 0;
 
-	public TrainBuilder() {
-	}
-	
-	public TrainBuilder createTrain(int numberOfEntranceAreas) {
+	public void createTrain(int numberOfEntranceAreas) {
 		if (numberOfEntranceAreas <= 0) {
 			throw new IllegalArgumentException("number of entrance areas must be positive.");
 		}
 		this.numberOfEntranceAreas = numberOfEntranceAreas;
-		
-//		attributes mit passender bounding box
-//		Topography t = new Topography(attributes);
-//		topographyBuilder = new TopographyBuilder(topography);
-		topographyBuilder = new TopographyBuilder();
+		this.topographyBuilder = createTopographyBuilder();
 
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildEntranceArea(i);
@@ -46,47 +41,75 @@ public class TrainBuilder {
 		for (int i = 0; i <= numberOfEntranceAreas; i++) {
 			buildCompartments(i);
 		}
-		return this;
 	}
 
-	public TrainBuilder blockExits() {
+	private TopographyBuilder createTopographyBuilder() {
+		AttributesBuilder<AttributesTopography> attributesBuilder =
+				new AttributesBuilder<>(new AttributesTopography());
+
+		double width = numberOfEntranceAreas
+				* (TrainGeometry.AISLE_LENGTH + TrainGeometry.ENTRANCE_AREA_WIDTH)
+				+ TrainGeometry.AISLE_LENGTH + 4;
+		double height = TrainGeometry.getTrainInteriorWidth() + 4;
+		attributesBuilder.setField("bounds", new VRectangle(0, 0, width, height));
+
+		final Topography topography = new Topography(attributesBuilder.build());
+		return new TopographyBuilder(topography);
+	}
+
+	public void blockExits() {
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildExitBlockades(i);
 		}
-		return this;
 	}
 
-	public TrainBuilder blockEnds() {
+	public void blockEnds() {
 		buildEndBlockades();
-		return this;
 	}
 
-	public TrainBuilder addStop(double time, boolean rightNotLeft, int numberOfNewPassengers) {
+	public void addStop(double time, boolean rightNotLeft, int numberOfNewPassengers) {
 		int[] numbersPerDoor = spreadPassengers(numberOfNewPassengers);
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
-			VShape shape = createSourceShape(rightNotLeft);
-			AttributesSource attributes = new AttributesSource(DEFAULT_ID, shape); // TODO missing: start time, spawn number numbersPerDoor[i]
-			Source source = new Source(attributes);
+			VShape shape = createSourceShape(i, rightNotLeft);
+			AttributesBuilder<AttributesSource> attributesBuilder =
+					new AttributesBuilder<>(new AttributesSource(DEFAULT_ID, shape));
+			attributesBuilder.setField("startTime", time);
+			attributesBuilder.setField("spawnDelay", 1); // TODO aus daten ermitteln
+			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
+			attributesBuilder.setField("spawnAtRandomPositions", true);
+			
+			final Source source = new Source(attributesBuilder.build());
 			topographyBuilder.addSource(source);
 		}
-		return this;
 	}
 
-	private VShape createSourceShape(boolean rightNotLeft) {
-		return new VRectangle(0, 0, 1, 1);
+	public Topography getResult() {
+		return topographyBuilder.build();
 	}
 
+	private VShape createSourceShape(int entranceAreaIndex, boolean rightNotLeft) {
+		Rectangle2D rect = TrainGeometry.getEntranceAreaRect(entranceAreaIndex);
+		double x = rect.getX() + (TrainGeometry.ENTRANCE_AREA_WIDTH - TrainGeometry.DOOR_WIDTH) / 2;
+		double y;
+		final double d = 0.1;
+		if (rightNotLeft) {
+			y = rect.getY() - d;
+		} else {
+			y = rect.getY() + rect.getHeight();
+		}
+		// evtl. weniger breit als DOOR_WIDTH, weil Personen ja auch einen Durchmesser haben
+		return new VRectangle(x, y, TrainGeometry.DOOR_WIDTH, d);
+	}
+	
 	private int[] spreadPassengers(int numberOfNewPassengers) {
+		// Hier könnte man auch eine Verteilung einbauen
+		// (Verteilung der Personen am Bahnsteig)
 		Random random = new Random();
 		int[] result = new int[numberOfEntranceAreas];
 		for (int i = 0; i < numberOfNewPassengers; i++) {
 			result[random.nextInt(result.length)]++;
 		}
 		return result;
-	}
-
-	public Topography getResult() {
-		return topographyBuilder.build();
 	}
 	
 	private void buildEndBlockades() {
@@ -201,7 +224,6 @@ public class TrainBuilder {
 		buildSeat(x2, y + distanceFromSide);
 		
 		// sides of benches
-		// TODO
 		double y1 = y;
 		double y2 = y + TrainGeometry.BENCH_WIDTH;
 		x1 = halfCompartmentRect.getX();

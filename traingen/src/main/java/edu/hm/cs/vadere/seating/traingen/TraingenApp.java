@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,14 +29,18 @@ public class TraingenApp {
 	public static void main(String[] args) {
 		try (InputStream doc = new FileInputStream(DOC_FILENAME)) {
 			Map<String, Object> opts = new Docopt(doc).parse(args);
-			System.err.println(opts);
+			//System.err.println(opts);
+			if (isFlagOptionPresent(opts, "--help")) {
+				Files.lines(Paths.get(DOC_FILENAME)).forEach(System.out::println);
+				return;
+			}
 			
 			TrainBuilder trainBuilder = new TrainBuilder();
-			trainBuilder.createTrain(Integer.valueOf((String) opts.get("--number-entrance-areas")));
-			if ((boolean) opts.get("--block-exits")) {
+			trainBuilder.createTrain(getOptionIntArgument(opts, "--number-entrance-areas"));
+			if (isFlagOptionPresent(opts, "--block-exits")) {
 				trainBuilder.blockExits();
 			}
-			if ((boolean) opts.get("--block-ends")) {
+			if (isFlagOptionPresent(opts, "--block-ends")) {
 				trainBuilder.blockEnds();
 			}
 			for (Stop s : getStops(opts)) {
@@ -43,13 +49,25 @@ public class TraingenApp {
 			Topography topography = trainBuilder.getResult();
 
 			JSONWriter.writeTopography(topography, new File("topography-output-file.json"));
-//			JSONWriter.writeTopography(topography, System.out);
+			JSONWriter.writeTopography(topography, System.out);
 			
 		} catch (IOException e) {
-			System.err.println("File '" + DOC_FILENAME
+			System.err.println("file '" + DOC_FILENAME
 					+ "' cannot be opened but is required for docopt.");
 			e.printStackTrace();
 		}
+	}
+
+	private static int getOptionIntArgument(Map<String, Object> opts, String option) {
+		try {
+			return Integer.valueOf((String) opts.get(option));
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("argument for " + option + " must be an integer.");
+		}
+	}
+
+	private static boolean isFlagOptionPresent(Map<String, Object> opts, String option) {
+		return (boolean) opts.get(option);
 	}
 
 	@SuppressWarnings("unchecked")

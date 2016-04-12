@@ -9,31 +9,32 @@ import java.awt.geom.Rectangle2D;
  */
 public class TrainGeometry {
 
-	public static final double DOOR_WIDTH = 1;
-	public static final double ENTRANCE_AREA_WIDTH = 1.1;
+	public static final double DOOR_WIDTH = 1.8;
+	public static final double ENTRANCE_AREA_WIDTH = 2.4;
 
 	public static final double BENCH_WIDTH = 1.15;
-	public static final double DISTANCE_BETWEEN_FACING_BENCHES = 0.6;
+	public static final double DISTANCE_BETWEEN_FACING_BENCHES = 0.75;
 
-	public static final double AISLE_WIDTH = 0.8;
+	public static final double AISLE_WIDTH = 1.3;
 	public static final double AISLE_ENTRANCE_WIDTH = 0.7;
-	public static final double AISLE_LENGTH = 3.3;
+	public static final double AISLE_LENGTH = 4.4;
 	
-	public static final double OFFSET_X = 5;
+	public static final double X_OFFSET = 6;
+	public static final double Y_OFFSET = 2;
 
 	public static Rectangle2D getEntranceAreaRect(int index) {
 		double w = ENTRANCE_AREA_WIDTH;
 		double h = getTrainInteriorWidth();
-		double x = index * (w + AISLE_LENGTH) + OFFSET_X;
-		double y = 0;
+		double x = index * (w + AISLE_LENGTH) + X_OFFSET;
+		double y = 0 + Y_OFFSET;
 		return new Rectangle2D.Double(x, y, w, h);
 	}
 
 	public static Rectangle2D getCompartmentRect(int index) {
 		double w = AISLE_LENGTH;
 		double h = getTrainInteriorWidth();
-		double x = ENTRANCE_AREA_WIDTH + (index - 1) * (ENTRANCE_AREA_WIDTH + w) + OFFSET_X;
-		double y = 0;
+		double x = ENTRANCE_AREA_WIDTH + (index - 1) * (ENTRANCE_AREA_WIDTH + w) + X_OFFSET;
+		double y = 0 + Y_OFFSET;
 		return new Rectangle2D.Double(x, y, w, h);
 	}
 
@@ -55,7 +56,7 @@ public class TrainGeometry {
 		return (AISLE_LENGTH - 2 * DISTANCE_BETWEEN_FACING_BENCHES) / 4;
 	}
 
-	private static double getTrainInteriorWidth() {
+	public static double getTrainInteriorWidth() {
 		return 2 * BENCH_WIDTH + AISLE_WIDTH;
 	}
 
