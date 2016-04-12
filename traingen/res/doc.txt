@@ -17,4 +17,4 @@ options:
   --block-ends
        block the ends of the train.
   --annotate
-       annotate JSON with comments.
+       [not working] annotate JSON with comments.

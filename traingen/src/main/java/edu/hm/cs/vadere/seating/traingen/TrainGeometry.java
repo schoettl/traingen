@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
  * @author Jakob Schöttl
  *
  */
-public class Train {
+public class TrainGeometry {
 
 	public static final double DOOR_WIDTH = 1;
 	public static final double ENTRANCE_AREA_WIDTH = 1.1;
@@ -49,6 +49,10 @@ public class Train {
 			throw new IllegalArgumentException("subindex must be 0 or 1.");
 		}
 		return new Rectangle2D.Double(x, compartment.getY(), w, compartment.getHeight());
+	}
+	
+	public static double getSeatDepth() {
+		return (AISLE_LENGTH - 2 * DISTANCE_BETWEEN_FACING_BENCHES) / 4;
 	}
 
 	private static double getTrainInteriorWidth() {

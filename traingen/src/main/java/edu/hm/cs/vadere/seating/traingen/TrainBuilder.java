@@ -1,11 +1,15 @@
 package edu.hm.cs.vadere.seating.traingen;
 
 import java.awt.geom.Rectangle2D;
+import java.util.Random;
+
 import attributes.scenario.AttributesObstacle;
+import attributes.scenario.AttributesSource;
 import attributes.scenario.AttributesTarget;
 import geometry.shapes.VRectangle;
 import geometry.shapes.VShape;
 import scenario.Obstacle;
+import scenario.Source;
 import scenario.Target;
 import scenario.Topography;
 import topographycreator.model.TopographyBuilder;
@@ -22,18 +26,19 @@ public class TrainBuilder {
 	private TopographyBuilder topographyBuilder;
 	private int numberOfEntranceAreas = 0;
 
-	public TrainBuilder(TopographyBuilder topographyBuilder) {
-		this.topographyBuilder = topographyBuilder;
+	public TrainBuilder() {
 	}
 	
-	public void createTrain(int numberOfEntranceAreas) {
+	public TrainBuilder createTrain(int numberOfEntranceAreas) {
 		if (numberOfEntranceAreas <= 0) {
 			throw new IllegalArgumentException("number of entrance areas must be positive.");
 		}
 		this.numberOfEntranceAreas = numberOfEntranceAreas;
 		
+//		attributes mit passender bounding box
 //		Topography t = new Topography(attributes);
-//		new TopographyBuilder(t);
+//		topographyBuilder = new TopographyBuilder(topography);
+		topographyBuilder = new TopographyBuilder();
 
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildEntranceArea(i);
@@ -41,22 +46,43 @@ public class TrainBuilder {
 		for (int i = 0; i <= numberOfEntranceAreas; i++) {
 			buildCompartments(i);
 		}
+		return this;
 	}
 
-	public void blockExits() {
+	public TrainBuilder blockExits() {
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildExitBlockades(i);
 		}
+		return this;
 	}
 
-	public void blockEnds() {
+	public TrainBuilder blockEnds() {
 		buildEndBlockades();
+		return this;
 	}
 
-	public void addStop(double time, boolean rightNotLeft, int numberOfNewPassengers) {
-		int numberOfNewPassengersPerDoor = numberOfNewPassengers / numberOfEntranceAreas; // TODO so einfach is es nicht. numberOfNewPassengers soll schon eingehalten werden!
-		// TODO add source with this properties...
-		
+	public TrainBuilder addStop(double time, boolean rightNotLeft, int numberOfNewPassengers) {
+		int[] numbersPerDoor = spreadPassengers(numberOfNewPassengers);
+		for (int i = 0; i < numberOfEntranceAreas; i++) {
+			VShape shape = createSourceShape(rightNotLeft);
+			AttributesSource attributes = new AttributesSource(DEFAULT_ID, shape); // TODO missing: start time, spawn number numbersPerDoor[i]
+			Source source = new Source(attributes);
+			topographyBuilder.addSource(source);
+		}
+		return this;
+	}
+
+	private VShape createSourceShape(boolean rightNotLeft) {
+		return new VRectangle(0, 0, 1, 1);
+	}
+
+	private int[] spreadPassengers(int numberOfNewPassengers) {
+		Random random = new Random();
+		int[] result = new int[numberOfEntranceAreas];
+		for (int i = 0; i < numberOfNewPassengers; i++) {
+			result[random.nextInt(result.length)]++;
+		}
+		return result;
 	}
 
 	public Topography getResult() {
@@ -66,13 +92,13 @@ public class TrainBuilder {
 	private void buildEndBlockades() {
 		double x, y1, y2;
 
-		Rectangle2D leftHalfCompartment = Train.getHalfCompartmentRect(0, 1);
+		Rectangle2D leftHalfCompartment = TrainGeometry.getHalfCompartmentRect(0, 1);
 		x = leftHalfCompartment.getX();
 		y1 = leftHalfCompartment.getY();
 		y2 = leftHalfCompartment.getY() + leftHalfCompartment.getHeight();
 		buildWall(x, y1, x, y2);
 		
-		Rectangle2D rightHalfCompartment = Train.getHalfCompartmentRect(numberOfEntranceAreas, 0);
+		Rectangle2D rightHalfCompartment = TrainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
 		x = rightHalfCompartment.getX() + rightHalfCompartment.getWidth();
 		y1 = rightHalfCompartment.getY();
 		y2 = rightHalfCompartment.getY() + rightHalfCompartment.getHeight();
@@ -80,8 +106,8 @@ public class TrainBuilder {
 	}
 
 	private void buildExitBlockades(int index) {
-		Rectangle2D entranceArea = Train.getEntranceAreaRect(index);
-		final double halfCompartmentWidth = Train.AISLE_LENGTH / 2;
+		Rectangle2D entranceArea = TrainGeometry.getEntranceAreaRect(index);
+		final double halfCompartmentWidth = TrainGeometry.AISLE_LENGTH / 2;
 		double x1 = entranceArea.getX() - halfCompartmentWidth;
 		double x2 = entranceArea.getX() + entranceArea.getWidth() + halfCompartmentWidth;
 		double y1, y2;
@@ -93,7 +119,7 @@ public class TrainBuilder {
 		buildVerticalWall(x2, y1, y2);
 		buildHorizontalWall(y2, x1, x2);
 
-		// upper exit blockade
+		// lower exit blockade
 		y1 = entranceArea.getY() + entranceArea.getHeight();
 		y2 = entranceArea.getY() + entranceArea.getHeight() + 1;
 		buildVerticalWall(x1, y1, y2);
@@ -134,14 +160,14 @@ public class TrainBuilder {
 		buildHalfCompartment(index, 0);
 		buildHalfCompartment(index, 1);
 		
-		Rectangle2D rect = Train.getCompartmentRect(index);
+		Rectangle2D rect = TrainGeometry.getCompartmentRect(index);
 
 		// backrests between seat groups
 		double x = rect.getX() + rect.getWidth() / 2;
 		double y1 = rect.getY();
 		double y2 = rect.getY() + rect.getHeight();
-		buildWall(x, y1, x, y1 + Train.BENCH_WIDTH);
-		buildWall(x, y2, x, y2 - Train.BENCH_WIDTH);
+		buildWall(x, y1, x, y1 + TrainGeometry.BENCH_WIDTH);
+		buildWall(x, y2, x, y2 - TrainGeometry.BENCH_WIDTH);
 
 		// train walls
 		double x1 = rect.getX();
@@ -156,18 +182,18 @@ public class TrainBuilder {
 		if (index == 0 && subindex == 0 || index == numberOfEntranceAreas && subindex == 1) {
 			return;
 		}
-		Rectangle2D rect = Train.getHalfCompartmentRect(index, subindex);
+		Rectangle2D rect = TrainGeometry.getHalfCompartmentRect(index, subindex);
 		buildFourSeats(rect, rect.getY());
-		buildFourSeats(rect, rect.getY() + Train.BENCH_WIDTH + Train.AISLE_WIDTH);
+		buildFourSeats(rect, rect.getY() + TrainGeometry.BENCH_WIDTH + TrainGeometry.AISLE_WIDTH);
 	}
 
 	private void buildFourSeats(Rectangle2D halfCompartmentRect, double y) {
-		final double distanceCenterToBackrest = (halfCompartmentRect.getWidth() - Train.DISTANCE_BETWEEN_FACING_BENCHES) / 4;
-		final double x1 = halfCompartmentRect.getX() + distanceCenterToBackrest;
-		final double x2 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth() - distanceCenterToBackrest;
+		final double distanceCenterToBackrest = (halfCompartmentRect.getWidth() - TrainGeometry.DISTANCE_BETWEEN_FACING_BENCHES) / 4;
+		double x1 = halfCompartmentRect.getX() + distanceCenterToBackrest;
+		double x2 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth() - distanceCenterToBackrest;
 		
 		double distanceFromSide;
-		distanceFromSide = Train.BENCH_WIDTH / 4;
+		distanceFromSide = TrainGeometry.BENCH_WIDTH / 4;
 		buildSeat(x1, y + distanceFromSide);
 		buildSeat(x2, y + distanceFromSide);
 		distanceFromSide *= 3;
@@ -176,6 +202,16 @@ public class TrainBuilder {
 		
 		// sides of benches
 		// TODO
+		double y1 = y;
+		double y2 = y + TrainGeometry.BENCH_WIDTH;
+		x1 = halfCompartmentRect.getX();
+		x2 = x1 + TrainGeometry.getSeatDepth();
+		buildHorizontalWall(y1, x1, x2);
+		buildHorizontalWall(y2, x1, x2);
+		x1 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth();
+		x2 = x1 - TrainGeometry.getSeatDepth();
+		buildHorizontalWall(y1, x1, x2);
+		buildHorizontalWall(y2, x1, x2);
 	}
 
 	private void buildSeat(double x, double y) {
@@ -186,8 +222,8 @@ public class TrainBuilder {
 	}
 
 	private void buildEntranceArea(int index) {
-		Rectangle2D rect = Train.getEntranceAreaRect(index);
-		final double width = (rect.getHeight() - Train.AISLE_ENTRANCE_WIDTH) / 2;
+		Rectangle2D rect = TrainGeometry.getEntranceAreaRect(index);
+		final double width = (rect.getHeight() - TrainGeometry.AISLE_ENTRANCE_WIDTH) / 2;
 		double x;
 		double y1 = rect.getY();
 		double y2 = rect.getY() + rect.getHeight();
