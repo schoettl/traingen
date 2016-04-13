@@ -53,7 +53,7 @@ public class TraingenApp {
 			
 		} catch (IOException e) {
 			System.err.println("file '" + DOC_FILENAME
-					+ "' cannot be opened but is required for docopt.");
+					+ "' cannot be opened but is required (for docopt).");
 			e.printStackTrace();
 		}
 	}
