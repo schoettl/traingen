@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.docopt.Docopt;
 
 import scenario.Topography;
@@ -28,28 +24,28 @@ public class TraingenApp {
 
 	public static void main(String[] args) {
 		try (InputStream doc = new FileInputStream(DOC_FILENAME)) {
-			Map<String, Object> opts = new Docopt(doc).parse(args);
+			DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(doc).parse(args));
 			//System.err.println(opts);
-			if (isFlagOptionPresent(opts, "--help")) {
+			if (opts.isFlagOptionPresent("--help")) {
 				Files.lines(Paths.get(DOC_FILENAME)).forEach(System.out::println);
 				return;
 			}
 			
 			TrainBuilder trainBuilder = new TrainBuilder();
-			trainBuilder.createTrain(getOptionIntArgument(opts, "--number-entrance-areas"));
-			if (isFlagOptionPresent(opts, "--block-exits")) {
+			trainBuilder.createTrain(opts.getOptionArgumentInt("--number-entrance-areas"));
+			if (opts.isFlagOptionPresent("--block-exits")) {
 				trainBuilder.blockExits();
 			}
-			if (isFlagOptionPresent(opts, "--block-ends")) {
+			if (opts.isFlagOptionPresent("--block-ends")) {
 				trainBuilder.blockEnds();
 			}
-			for (Stop s : getStops(opts)) {
+			for (Stop s : opts.getStops()) {
 				trainBuilder.addStop(s.time, s.entranceSideRightNotLeft, s.numberOfNewPassengers);
 			}
 			Topography topography = trainBuilder.getResult();
 
 			JSONWriter.writeTopography(topography, new File("topography-output-file.json"));
-			JSONWriter.writeTopography(topography, System.out);
+//			JSONWriter.writeTopography(topography, System.out);
 			
 		} catch (IOException e) {
 			System.err.println("file '" + DOC_FILENAME
@@ -57,25 +53,4 @@ public class TraingenApp {
 			e.printStackTrace();
 		}
 	}
-
-	private static int getOptionIntArgument(Map<String, Object> opts, String option) {
-		try {
-			return Integer.valueOf((String) opts.get(option));
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("argument for " + option + " must be an integer.");
-		}
-	}
-
-	private static boolean isFlagOptionPresent(Map<String, Object> opts, String option) {
-		return (boolean) opts.get(option);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static List<Stop> getStops(Map<String, Object> opts) {
-		List<String> list = (List<String>) opts.get("--stop");
-		return list.stream()
-				.map(Stop::parseStopArgument)
-				.collect(Collectors.toList());
-	}
-
 }
