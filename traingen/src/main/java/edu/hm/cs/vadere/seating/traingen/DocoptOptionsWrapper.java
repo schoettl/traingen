@@ -5,17 +5,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Usage: DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(doc).parse(args));
+ * This is a wrapper class around the options Map returned by <tt>Docopt.parse(...)</tt> method. It
+ * should be seen as a template! Feel free to add getter methods, change method names or
+ * implementation, ...
  * 
+ * Usage:
+ * <tt>DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(doc).parse(args));</tt>
+ * 
+ * @see org.docopt.Docopt Docopt
+ * @see <a href="http://docopt.org/">docopt.org</a>
  * @author Jakob Schöttl
- *
  */
 public class DocoptOptionsWrapper {
 
 	Map<String, Object> options;
 
 	/**
-	 * Create a wrapper object based on the Map<String, Object> returned by Docopt.parse().
+	 * Create a wrapper object based on the <tt>Map<String, Object></tt> returned by
+	 * <tt>Docopt.parse(...)</tt>.
 	 * 
 	 * @param options
 	 */
@@ -24,7 +31,7 @@ public class DocoptOptionsWrapper {
 	}
 
 	/**
-	 * Return the Map this wrapper is based on.
+	 * Return the original Map this wrapper is based on.
 	 */
 	public Map<String, Object> getOptionMap() {
 		return options;
