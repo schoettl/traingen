@@ -7,6 +7,8 @@ import attributes.AttributesBuilder;
 import attributes.scenario.AttributesSource;
 import attributes.scenario.AttributesTarget;
 import attributes.scenario.AttributesTopography;
+import edu.hm.cs.vadere.seating.traingen.ObstacleBuilder.WallAlignment;
+import edu.hm.cs.vadere.seating.traingen.Stop.EntranceSide;
 import geometry.shapes.VRectangle;
 import geometry.shapes.VShape;
 import scenario.Source;
@@ -55,13 +57,14 @@ public class TrainBuilder {
 		buildEndBlockades();
 	}
 
-	public void addStop(double time, boolean rightNotLeft, int numberOfNewPassengers) {
+	public void addStop(double time, Stop.EntranceSide entranceSide, int numberOfNewPassengers) {
 		int[] numbersPerDoor = spreadPassengers(numberOfNewPassengers);
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
-			VShape shape = createSourceShape(i, rightNotLeft);
+			VShape shape = createSourceShape(i, entranceSide);
 			AttributesBuilder<AttributesSource> attributesBuilder =
 					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
 			attributesBuilder.setField("startTime", time);
+			attributesBuilder.setField("endTime", time); // startTime == endTime -> no end time (apparently)
 			attributesBuilder.setField("spawnDelay", 1); // TODO aus daten ermitteln
 			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
@@ -89,15 +92,17 @@ public class TrainBuilder {
 		return new TopographyBuilder(topography);
 	}
 
-	private VShape createSourceShape(int entranceAreaIndex, boolean rightNotLeft) {
+	private VShape createSourceShape(int entranceAreaIndex, EntranceSide entranceSide) {
 		Rectangle2D rect = TrainGeometry.getEntranceAreaRect(entranceAreaIndex);
 		double x = rect.getX() + (TrainGeometry.ENTRANCE_AREA_WIDTH - TrainGeometry.DOOR_WIDTH) / 2;
 		double y;
 		final double d = 0.1;
-		if (rightNotLeft) {
+		if (entranceSide == EntranceSide.BOTTOM) {
 			y = rect.getY() - d;
-		} else {
+		} else if (entranceSide == EntranceSide.TOP) {
 			y = rect.getY() + rect.getHeight();
+		} else {
+			throw new NullPointerException("entranceSide parameter must not be null");
 		}
 		// evtl. weniger breit als DOOR_WIDTH, weil Personen ja auch einen Durchmesser haben
 		return new VRectangle(x, y, TrainGeometry.DOOR_WIDTH, d);
@@ -121,14 +126,14 @@ public class TrainBuilder {
 		x = leftHalfCompartment.getX();
 		y1 = leftHalfCompartment.getY();
 		y2 = leftHalfCompartment.getY() + leftHalfCompartment.getHeight();
-		obstacleBuilder.buildWall(x, y1, x, y2);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.BELOW, y1, y2);
 		
 		Rectangle2D rightHalfCompartment =
 				TrainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
 		x = rightHalfCompartment.getX() + rightHalfCompartment.getWidth();
 		y1 = rightHalfCompartment.getY();
 		y2 = rightHalfCompartment.getY() + rightHalfCompartment.getHeight();
-		obstacleBuilder.buildWall(x, y1, x, y2);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.ON_TOP, y1, y2);
 	}
 
 	private void buildExitBlockades(int index) {
@@ -141,16 +146,16 @@ public class TrainBuilder {
 		// upper exit blockade
 		y1 = entranceArea.getY();
 		y2 = entranceArea.getY() - 1;
-		obstacleBuilder.buildVerticalWall(x1, y1, y2);
-		obstacleBuilder.buildVerticalWall(x2, y1, y2);
-		obstacleBuilder.buildHorizontalWall(y2, x1, x2);
+		obstacleBuilder.buildVerticalWall(x1, WallAlignment.CENTER, y1, y2);
+		obstacleBuilder.buildVerticalWall(x2, WallAlignment.CENTER, y1, y2);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 
 		// lower exit blockade
 		y1 = entranceArea.getY() + entranceArea.getHeight();
 		y2 = entranceArea.getY() + entranceArea.getHeight() + 1;
-		obstacleBuilder.buildVerticalWall(x1, y1, y2);
-		obstacleBuilder.buildVerticalWall(x2, y1, y2);
-		obstacleBuilder.buildHorizontalWall(y2, x1, x2);
+		obstacleBuilder.buildVerticalWall(x1, WallAlignment.CENTER, y1, y2);
+		obstacleBuilder.buildVerticalWall(x2, WallAlignment.CENTER, y1, y2);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 		
 	}
 	
@@ -165,16 +170,8 @@ public class TrainBuilder {
 		double x = rect.getX() + rect.getWidth() / 2;
 		double y1 = rect.getY();
 		double y2 = rect.getY() + rect.getHeight();
-		obstacleBuilder.buildWall(x, y1, x, y1 + TrainGeometry.BENCH_WIDTH);
-		obstacleBuilder.buildWall(x, y2, x, y2 - TrainGeometry.BENCH_WIDTH);
-
-		// train walls
-		double x1 = rect.getX();
-		double x2 = rect.getX() + rect.getWidth();
-		y1 = rect.getY();
-		y2 = rect.getY() + rect.getHeight();
-		obstacleBuilder.buildWall(x1, y1, x2, y1);
-		obstacleBuilder.buildWall(x1, y2, x2, y2);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y1, y1 + TrainGeometry.BENCH_WIDTH);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y2, y2 - TrainGeometry.BENCH_WIDTH);
 	}
 
 	private void buildHalfCompartment(int index, int subindex) {
@@ -184,6 +181,15 @@ public class TrainBuilder {
 		Rectangle2D rect = TrainGeometry.getHalfCompartmentRect(index, subindex);
 		buildFourSeats(rect, rect.getY());
 		buildFourSeats(rect, rect.getY() + TrainGeometry.BENCH_WIDTH + TrainGeometry.AISLE_WIDTH);
+
+		// train outer walls
+		double x1 = rect.getX();
+		double x2 = rect.getX() + rect.getWidth();
+		double y1 = rect.getY();
+		double y2 = rect.getY() + rect.getHeight();
+		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.BELOW, x1, x2);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.ON_TOP, x1, x2);
+
 	}
 
 	private void buildFourSeats(Rectangle2D halfCompartmentRect, double y) {
@@ -204,18 +210,18 @@ public class TrainBuilder {
 		double y2 = y + TrainGeometry.BENCH_WIDTH;
 		x1 = halfCompartmentRect.getX();
 		x2 = x1 + TrainGeometry.getSeatDepth();
-		obstacleBuilder.buildHorizontalWall(y1, x1, x2);
-		obstacleBuilder.buildHorizontalWall(y2, x1, x2);
+		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.CENTER, x1, x2);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 		x1 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth();
 		x2 = x1 - TrainGeometry.getSeatDepth();
-		obstacleBuilder.buildHorizontalWall(y1, x1, x2);
-		obstacleBuilder.buildHorizontalWall(y2, x1, x2);
+		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.CENTER, x1, x2);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 	}
 
 	private void buildSeat(double x, double y) {
-		final double targetRadius = 0.02;
-		VShape rect = new VRectangle(x - targetRadius / 2, y - targetRadius / 2,
-				targetRadius, targetRadius);
+		final double targetDiameter = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
+		VShape rect = new VRectangle(x - targetDiameter / 2, y - targetDiameter / 2,
+				targetDiameter, targetDiameter);
 		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
 		topographyBuilder.addTarget(new Target(attributes));
 	}
@@ -228,17 +234,17 @@ public class TrainBuilder {
 		final double y1 = rect.getY();
 		final double y2 = rect.getY() + rect.getHeight();
 		
-		obstacleBuilder.buildVerticalWall(x1, y1, y1 + width);
-		obstacleBuilder.buildVerticalWall(x1, y2, y2 - width);
-		obstacleBuilder.buildVerticalWall(x2, y1, y1 + width);
-		obstacleBuilder.buildVerticalWall(x2, y2, y2 - width);
+		obstacleBuilder.buildVerticalWall(x1, WallAlignment.CENTER, y1, y1 + width);
+		obstacleBuilder.buildVerticalWall(x1, WallAlignment.CENTER, y2, y2 - width);
+		obstacleBuilder.buildVerticalWall(x2, WallAlignment.CENTER, y1, y1 + width);
+		obstacleBuilder.buildVerticalWall(x2, WallAlignment.CENTER, y2, y2 - width);
 		
 		final double distanceToDoor =
 				(TrainGeometry.ENTRANCE_AREA_WIDTH - TrainGeometry.DOOR_WIDTH) / 2;
-		obstacleBuilder.buildHorizontalWall(y1, x1, x1 + distanceToDoor);
-		obstacleBuilder.buildHorizontalWall(y2, x1, x1 + distanceToDoor);
-		obstacleBuilder.buildHorizontalWall(y1, x2, x2 - distanceToDoor);
-		obstacleBuilder.buildHorizontalWall(y2, x2, x2 - distanceToDoor);
+		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.BELOW, x1, x1 + distanceToDoor);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.ON_TOP,  x1, x1 + distanceToDoor);
+		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.BELOW, x2, x2 - distanceToDoor);
+		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.ON_TOP,  x2, x2 - distanceToDoor);
 	}
 
 }

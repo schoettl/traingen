@@ -40,7 +40,7 @@ public class TraingenApp {
 				trainBuilder.blockEnds();
 			}
 			for (Stop s : opts.getStops()) {
-				trainBuilder.addStop(s.time, s.entranceSideRightNotLeft, s.numberOfNewPassengers);
+				trainBuilder.addStop(s.time, s.entranceSide, s.numberOfNewPassengers);
 			}
 			Topography topography = trainBuilder.getResult();
 

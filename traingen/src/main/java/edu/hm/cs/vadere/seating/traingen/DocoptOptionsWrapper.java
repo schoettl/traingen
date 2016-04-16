@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * This is a wrapper class around the options Map returned by <tt>Docopt.parse(...)</tt> method. It
- * should be seen as a template! Feel free to add getter methods, change method names or
+ * This is a wrapper class around the options Map returned by the <tt>Docopt.parse(...)</tt> method.
+ * It should be seen as a template! Feel free to add getter methods, change method names or
  * implementation, ...
  * 
  * Usage:
