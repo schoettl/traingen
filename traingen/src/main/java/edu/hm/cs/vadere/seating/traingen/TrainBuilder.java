@@ -74,6 +74,35 @@ public class TrainBuilder {
 		}
 	}
 
+	public void addInterimDestinations() {
+		Rectangle2D compartmentRect;
+		// leftmost compartment:
+		compartmentRect = TrainGeometry.getCompartmentRect(0);
+		addRightInterimDestination(compartmentRect);
+		// rightmost compartment:
+		compartmentRect = TrainGeometry.getCompartmentRect(numberOfEntranceAreas);
+		addLeftInterimDestination(compartmentRect);
+		// all other compartments:
+		for (int i = 1; i < numberOfEntranceAreas; i++) {
+			compartmentRect = TrainGeometry.getCompartmentRect(i);
+			addLeftInterimDestination(compartmentRect);
+			addMiddleInterimDestination(compartmentRect);
+			addRightInterimDestination(compartmentRect);
+		}
+	}
+
+	private void addMiddleInterimDestination(Rectangle2D compartmentRect) {
+		buildTarget(compartmentRect.getCenterX(), compartmentRect.getCenterY());
+	}
+
+	private void addLeftInterimDestination(Rectangle2D compartmentRect) {
+		buildTarget(compartmentRect.getMinX(), compartmentRect.getCenterY());
+	}
+
+	private void addRightInterimDestination(Rectangle2D compartmentRect) {
+		buildTarget(compartmentRect.getMaxX(), compartmentRect.getCenterY());
+	}
+
 	public Topography getResult() {
 		return topographyBuilder.build();
 	}
@@ -219,6 +248,11 @@ public class TrainBuilder {
 	}
 
 	private void buildSeat(double x, double y) {
+		buildTarget(x, y);
+	}
+
+	/** Build point target (size as small as possible). */
+	private void buildTarget(double x, double y) {
 		final double targetDiameter = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
 		VShape rect = new VRectangle(x - targetDiameter / 2, y - targetDiameter / 2,
 				targetDiameter, targetDiameter);

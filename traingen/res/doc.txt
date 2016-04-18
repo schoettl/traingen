@@ -16,6 +16,8 @@ options:
        the train.
   --block-ends
        block the ends of the train.
+  -i, --interim-destinations
+       add interim destinations in the aisle (three for each compartment).
   --annotate
        [not working] annotate JSON with comments.
   -h, --help
