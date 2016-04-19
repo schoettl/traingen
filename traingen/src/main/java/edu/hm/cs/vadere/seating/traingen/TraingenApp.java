@@ -25,7 +25,7 @@ public class TraingenApp {
 	public static void main(String[] args) {
 		try (InputStream doc = new FileInputStream(DOC_FILENAME)) {
 			DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(doc).parse(args));
-			//System.err.println(opts);
+			//System.err.println(opts.getOptionMap());
 			if (opts.isFlagOptionPresent("--help")) {
 				Files.lines(Paths.get(DOC_FILENAME)).forEach(System.out::println);
 				return;
@@ -40,7 +40,7 @@ public class TraingenApp {
 				trainBuilder.blockEnds();
 			}
 			for (Stop s : opts.getStops()) {
-				trainBuilder.addStop(s.time, s.entranceSide, s.numberOfNewPassengers);
+				trainBuilder.addStop(s);
 			}
 			if (opts.isFlagOptionPresent("--interim-destinations")) {
 				trainBuilder.addInterimDestinations();

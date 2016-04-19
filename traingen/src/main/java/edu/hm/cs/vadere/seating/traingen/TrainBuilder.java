@@ -17,6 +17,9 @@ import scenario.Topography;
 import topographycreator.model.TopographyBuilder;
 
 /**
+ * Builder for train topographies. Words like "left", "right", "top", and "bottom" refer to the map
+ * view of the scenario, not the actual train (since there is no direction of travel defined in the
+ * topography).
  * 
  * @author Jakob Schöttl
  *
@@ -57,14 +60,14 @@ public class TrainBuilder {
 		buildEndBlockades();
 	}
 
-	public void addStop(double time, Stop.EntranceSide entranceSide, int numberOfNewPassengers) {
-		int[] numbersPerDoor = spreadPassengers(numberOfNewPassengers);
+	public void addStop(Stop stop) {
+		int[] numbersPerDoor = spreadPassengers(stop.numberOfNewPassengers);
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
-			VShape shape = createSourceShape(i, entranceSide);
+			VShape shape = createSourceShape(i, stop.entranceSide);
 			AttributesBuilder<AttributesSource> attributesBuilder =
 					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
-			attributesBuilder.setField("startTime", time);
-			attributesBuilder.setField("endTime", time); // startTime == endTime -> no end time (apparently)
+			attributesBuilder.setField("startTime", stop.time);
+			attributesBuilder.setField("endTime", stop.time); // startTime == endTime -> no end time (apparently)
 			attributesBuilder.setField("spawnDelay", 1); // TODO aus daten ermitteln
 			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
@@ -82,7 +85,7 @@ public class TrainBuilder {
 		// rightmost compartment:
 		compartmentRect = TrainGeometry.getCompartmentRect(numberOfEntranceAreas);
 		addLeftInterimDestination(compartmentRect);
-		// all other compartments:
+		// all other compartments inbetween:
 		for (int i = 1; i < numberOfEntranceAreas; i++) {
 			compartmentRect = TrainGeometry.getCompartmentRect(i);
 			addLeftInterimDestination(compartmentRect);
