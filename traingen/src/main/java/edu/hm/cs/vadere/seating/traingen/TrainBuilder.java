@@ -1,9 +1,13 @@
 package edu.hm.cs.vadere.seating.traingen;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import attributes.AttributesBuilder;
+import attributes.scenario.AttributesPedestrian;
 import attributes.scenario.AttributesSource;
 import attributes.scenario.AttributesTarget;
 import attributes.scenario.AttributesTopography;
@@ -11,9 +15,11 @@ import edu.hm.cs.vadere.seating.traingen.ObstacleBuilder.WallAlignment;
 import edu.hm.cs.vadere.seating.traingen.Stop.EntranceSide;
 import geometry.shapes.VRectangle;
 import geometry.shapes.VShape;
+import scenario.Pedestrian;
 import scenario.Source;
 import scenario.Target;
 import scenario.Topography;
+import topographycreator.model.PedestrianWrapper;
 import topographycreator.model.TopographyBuilder;
 
 /**
@@ -29,11 +35,14 @@ public class TrainBuilder {
 	private TopographyBuilder topographyBuilder;
 	private ObstacleBuilder obstacleBuilder;
 	private int numberOfEntranceAreas = 0;
+	/** Extra list of seats; for internal use only. */
+	private List<Target> seats;
 
 	// Michael: "Die ID muss nur innerhalb der jeweiligen Elementgruppe eindeutig sein."
 	private int targetIdCounter = 1;
 	private int sourceIdCounter = 1;
 
+	/** Must be called before all other methods. */
 	public void createTrain(int numberOfEntranceAreas) {
 		if (numberOfEntranceAreas <= 0) {
 			throw new IllegalArgumentException("number of entrance areas must be positive.");
@@ -41,6 +50,8 @@ public class TrainBuilder {
 		this.numberOfEntranceAreas = numberOfEntranceAreas;
 		this.topographyBuilder = createTopographyBuilder();
 		this.obstacleBuilder = new ObstacleBuilder(topographyBuilder);
+		// each entrance area makes up 1 compartment, each compartment has 16 seats
+		this.seats = new ArrayList<>(16 * numberOfEntranceAreas);
 
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildEntranceArea(i);
@@ -94,6 +105,35 @@ public class TrainBuilder {
 		}
 	}
 
+	public void placePersons(int numberOfPersons) {
+		final int numberOfSeats = seats.size();
+		if (numberOfPersons > numberOfSeats) {
+			throw new IllegalArgumentException(String.format(
+					"number of sitting persons (%d) cannot be greater than number of seats (%d).",
+					numberOfPersons, numberOfSeats));
+		}
+		List<Integer> list = createRangeList(0, numberOfSeats - 1);
+		Collections.shuffle(list);
+		for (Integer seatIndex : list.subList(0, numberOfPersons)) {
+			Target target = seats.get(seatIndex);
+			Pedestrian person = new Pedestrian(new AttributesPedestrian(), new Random());
+			person.setPosition(target.getShape().getCentroid());
+			topographyBuilder.addPedestrian(new PedestrianWrapper(person));
+		}
+	}
+
+	public Topography getResult() {
+		return topographyBuilder.build();
+	}
+
+	private List<Integer> createRangeList(int min, int max) {
+		List<Integer> result = new ArrayList<>(max - min + 1);
+		for (int i = min; i <= max; i++) {
+			result.add(i);
+		}
+		return result;
+	}
+
 	private void addMiddleInterimDestination(Rectangle2D compartmentRect) {
 		buildTarget(compartmentRect.getCenterX(), compartmentRect.getCenterY());
 	}
@@ -104,10 +144,6 @@ public class TrainBuilder {
 
 	private void addRightInterimDestination(Rectangle2D compartmentRect) {
 		buildTarget(compartmentRect.getMaxX(), compartmentRect.getCenterY());
-	}
-
-	public Topography getResult() {
-		return topographyBuilder.build();
 	}
 
 	private TopographyBuilder createTopographyBuilder() {
@@ -251,16 +287,22 @@ public class TrainBuilder {
 	}
 
 	private void buildSeat(double x, double y) {
-		buildTarget(x, y);
+		Target target = createTarget(x, y);
+		topographyBuilder.addTarget(target);
+		seats.add(target);
 	}
 
-	/** Build point target (size as small as possible). */
 	private void buildTarget(double x, double y) {
+		topographyBuilder.addTarget(createTarget(x, y));
+	}
+	
+	/** Create point target (size as small as possible). */
+	private Target createTarget(double x, double y) {
 		final double targetDiameter = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
 		VShape rect = new VRectangle(x - targetDiameter / 2, y - targetDiameter / 2,
 				targetDiameter, targetDiameter);
 		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
-		topographyBuilder.addTarget(new Target(attributes));
+		return new Target(attributes);
 	}
 
 	private void buildEntranceArea(int index) {

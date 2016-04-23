@@ -45,6 +45,7 @@ public class TraingenApp {
 			if (opts.isFlagOptionPresent("--interim-destinations")) {
 				trainBuilder.addInterimDestinations();
 			}
+			trainBuilder.placePersons(opts.getOptionArgumentInt("--number-sitting-persons"));
 			Topography topography = trainBuilder.getResult();
 
 			JSONWriter.writeTopography(topography, new File("topography-output-file.json"));

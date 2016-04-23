@@ -18,6 +18,8 @@ options:
        block the ends of the train.
   -i, --interim-destinations
        add interim destinations in the aisle (three for each compartment).
+  -p, --number-sitting-persons=N
+       number of already sitting persons, randomly placed.
   --annotate
        [not working] annotate JSON with comments.
   -h, --help
