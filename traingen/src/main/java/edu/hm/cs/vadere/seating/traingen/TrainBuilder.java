@@ -19,6 +19,7 @@ import scenario.Pedestrian;
 import scenario.Source;
 import scenario.Target;
 import scenario.Topography;
+import scenario.TrainGeometry;
 import topographycreator.model.PedestrianWrapper;
 import topographycreator.model.TopographyBuilder;
 
