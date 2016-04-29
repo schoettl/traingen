@@ -7,13 +7,13 @@ options:
   -n, --number-entrance-areas=N
        number of entrance areas [default: 2].
   --stop=STOP_PARAMS
-       definition for a stop; format: <time>,<side>,<number_people>. <time>
-       is the simulation time point of the stop; <side> must be either "top"
-       or "bottom" (top view of scenario map); <number_people> is the total
-       number of people entering the train.
+       definition for a stop; format: <time>,<side>,<number_people>. <time> is
+       the simulation time point of the stop; <side> must be either "top" or
+       "bottom" (top view of scenario map); <number_people> is the total number
+       of people entering the train.
   --block-exits
-       block exits so that agents are forced to walk to their seats inside
-       the train.
+       block exits so that agents are forced to walk to their seats inside the
+       train.
   --block-ends
        block the ends of the train.
   -i, --interim-destinations
