@@ -39,9 +39,15 @@ public class TrainBuilder {
 	/** Extra list of seats; for internal use only. */
 	private List<Target> seats;
 
+	private Random random;
+
 	// Michael: "Die ID muss nur innerhalb der jeweiligen Elementgruppe eindeutig sein."
 	private int targetIdCounter = 1;
 	private int sourceIdCounter = 1;
+
+	public TrainBuilder(Random random) {
+		this.random = random;
+	}
 
 	/** Must be called before all other methods. */
 	public void createTrain(int numberOfEntranceAreas) {
@@ -114,10 +120,10 @@ public class TrainBuilder {
 					numberOfPersons, numberOfSeats));
 		}
 		List<Integer> list = createRangeList(0, numberOfSeats - 1);
-		Collections.shuffle(list);
+		Collections.shuffle(list, random);
 		for (Integer seatIndex : list.subList(0, numberOfPersons)) {
 			Target target = seats.get(seatIndex);
-			Pedestrian person = new Pedestrian(new AttributesPedestrian(), new Random());
+			Pedestrian person = new Pedestrian(new AttributesPedestrian(), random);
 			person.setPosition(target.getShape().getCentroid());
 			topographyBuilder.addPedestrian(new PedestrianWrapper(person));
 		}
@@ -180,7 +186,6 @@ public class TrainBuilder {
 	private int[] spreadPassengers(int numberOfNewPassengers) {
 		// Hier könnte man auch eine Verteilung einbauen
 		// (Verteilung der Personen am Bahnsteig)
-		Random random = new Random();
 		int[] result = new int[numberOfEntranceAreas];
 		for (int i = 0; i < numberOfNewPassengers; i++) {
 			result[random.nextInt(result.length)]++;

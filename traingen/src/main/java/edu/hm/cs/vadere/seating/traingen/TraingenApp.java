@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Random;
+
 import org.docopt.Docopt;
 
 import scenario.Topography;
@@ -31,7 +33,14 @@ public class TraingenApp {
 				return;
 			}
 			
-			TrainBuilder trainBuilder = new TrainBuilder();
+			Random random;
+			long seed = opts.getOptionArgumentInt("--random-seed");
+			if (seed != 0) {
+				random = new Random(seed);
+			} else {
+				random = new Random();
+			}
+			TrainBuilder trainBuilder = new TrainBuilder(random);
 			trainBuilder.createTrain(opts.getOptionArgumentInt("--number-entrance-areas"));
 			if (opts.isFlagOptionPresent("--block-exits")) {
 				trainBuilder.blockExits();
