@@ -34,9 +34,8 @@ public class TraingenApp {
 			}
 			
 			Random random;
-			long seed = opts.getOptionArgumentInt("--random-seed");
-			if (seed != 0) {
-				random = new Random(seed);
+			if (opts.isOptionPresent("--random-seed")) {
+				random = new Random(opts.getOptionArgumentInt("--random-seed"));
 			} else {
 				random = new Random();
 			}

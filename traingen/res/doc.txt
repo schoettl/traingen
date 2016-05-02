@@ -21,8 +21,8 @@ options:
   -p, --number-sitting-persons=N
        number of already sitting persons, randomly placed.
   --random-seed=X
-       generate the train using X as seed for the random number generator; if X
-       is 0, a random seed is used [default: 0].
+       generate the train using X as seed for the random number generator; if
+       this option is not present, a random seed is used.
   --annotate
        [not working] annotate JSON with comments.
   -h, --help

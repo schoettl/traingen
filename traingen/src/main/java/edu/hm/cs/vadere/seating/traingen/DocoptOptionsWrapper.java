@@ -49,6 +49,10 @@ public class DocoptOptionsWrapper {
 		return (boolean) options.get(option);
 	}
 
+	public boolean isOptionPresent(String option) {
+		return options.get(option) != null;
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Stop> getStops() {
 		List<String> list = (List<String>) options.get("--stop");
