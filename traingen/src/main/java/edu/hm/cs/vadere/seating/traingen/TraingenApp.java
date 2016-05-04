@@ -56,9 +56,13 @@ public class TraingenApp {
 			trainBuilder.placePersons(opts.getOptionArgumentInt("--number-sitting-persons"));
 			Topography topography = trainBuilder.getResult();
 
-			JSONWriter.writeTopography(topography, new File("../../../Software/VadereGui/scenarios/traingen-output-file.json"));
-//			JSONWriter.writeTopography(topography, System.out);
-			
+			String outputFile = opts.getOptionArgumentString("--output-file");
+			if (outputFile == null) {
+				// JSONWriter.writeTopography(topography, System.out);
+			} else {
+				JSONWriter.writeTopography(topography, new File(outputFile));
+			}
+
 		} catch (IOException e) {
 			System.err.println("file '" + DOC_FILENAME
 					+ "' cannot be opened but is required (for docopt).");

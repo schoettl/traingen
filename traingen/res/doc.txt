@@ -24,6 +24,8 @@ options:
        generate the train using X as seed for the random number generator; if
        this option is not present, a random seed is used.
   --annotate
-       [not working] annotate JSON with comments.
+       [not working] annotate JSON with comments for post-processing.
+  -o, --output-file=FILE
+       specify an output file; if not specified, output goes to stdout.
   -h, --help
        print this help message.

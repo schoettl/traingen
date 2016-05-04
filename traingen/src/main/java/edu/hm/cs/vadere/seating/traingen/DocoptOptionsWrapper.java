@@ -37,6 +37,10 @@ public class DocoptOptionsWrapper {
 		return options;
 	}
 
+	public String getOptionArgumentString(String option) {
+		return (String) options.get(option);
+	}
+
 	public int getOptionArgumentInt(String option) {
 		try {
 			return Integer.valueOf((String) options.get(option));
