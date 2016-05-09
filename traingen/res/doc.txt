@@ -23,6 +23,9 @@ options:
   --random-seed=X
        generate the train using X as seed for the random number generator; if
        this option is not present, a random seed is used.
+  --train-geometry=CLASSNAME
+       use specified TrainGeometry class. the specified class must extend
+       TrainGeometry and must provide a default constructor.
   --annotate
        [not working] annotate JSON with comments for post-processing.
   -o, --output-file=FILE

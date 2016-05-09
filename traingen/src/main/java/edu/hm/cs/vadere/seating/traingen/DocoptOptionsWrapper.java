@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import scenario.TrainGeometry;
+
 /**
  * This is a wrapper class around the options Map returned by the <tt>Docopt.parse(...)</tt> method.
  * It should be seen as a template! Feel free to add getter methods, change method names or
@@ -63,5 +65,22 @@ public class DocoptOptionsWrapper {
 		return list.stream()
 				.map(Stop::parseStopArgument)
 				.collect(Collectors.toList());
+	}
+
+	public TrainGeometry getTrainGeometry() {
+		final String option = "--train-geometry";
+		String className = getOptionArgumentString(option);
+		if (className == null) {
+			className = TrainGeometry.class.getName();
+		}
+		try {
+			@SuppressWarnings("unchecked")
+			Class<TrainGeometry> c = (Class<TrainGeometry>) Class.forName(className);
+			return c.newInstance();
+		} catch (Exception e) {
+			throw new IllegalArgumentException("argument for option " + option + " must be a "
+					+ "fully qualified class name for a TrainGeometry class with a default "
+					+ "constructor.", e);
+		}
 	}
 }

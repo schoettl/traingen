@@ -11,6 +11,7 @@ import java.util.Random;
 import org.docopt.Docopt;
 
 import scenario.Topography;
+import scenario.TrainGeometry;
 import topographycreator.utils.JSONWriter;
 
 /**
@@ -39,7 +40,8 @@ public class TraingenApp {
 			} else {
 				random = new Random();
 			}
-			TrainBuilder trainBuilder = new TrainBuilder(random);
+			TrainGeometry trainGeometry = opts.getTrainGeometry();
+			TrainBuilder trainBuilder = new TrainBuilder(trainGeometry, random);
 			trainBuilder.createTrain(opts.getOptionArgumentInt("--number-entrance-areas"));
 			if (opts.isFlagOptionPresent("--block-exits")) {
 				trainBuilder.blockExits();

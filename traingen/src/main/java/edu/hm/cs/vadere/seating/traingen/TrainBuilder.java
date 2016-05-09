@@ -39,13 +39,15 @@ public class TrainBuilder {
 	/** Extra list of seats; for internal use only. */
 	private List<Target> seats;
 
+	private TrainGeometry trainGeometry;
 	private Random random;
 
 	// Michael: "Die ID muss nur innerhalb der jeweiligen Elementgruppe eindeutig sein."
 	private int targetIdCounter = 1;
 	private int sourceIdCounter = 1;
 
-	public TrainBuilder(Random random) {
+	public TrainBuilder(TrainGeometry trainGeometry, Random random) {
+		this.trainGeometry = trainGeometry;
 		this.random = random;
 	}
 
@@ -98,14 +100,14 @@ public class TrainBuilder {
 	public void addInterimDestinations() {
 		Rectangle2D compartmentRect;
 		// leftmost compartment:
-		compartmentRect = TrainGeometry.getCompartmentRect(0);
+		compartmentRect = trainGeometry.getCompartmentRect(0);
 		addRightInterimDestination(compartmentRect);
 		// rightmost compartment:
-		compartmentRect = TrainGeometry.getCompartmentRect(numberOfEntranceAreas);
+		compartmentRect = trainGeometry.getCompartmentRect(numberOfEntranceAreas);
 		addLeftInterimDestination(compartmentRect);
 		// all other compartments inbetween:
 		for (int i = 1; i < numberOfEntranceAreas; i++) {
-			compartmentRect = TrainGeometry.getCompartmentRect(i);
+			compartmentRect = trainGeometry.getCompartmentRect(i);
 			addLeftInterimDestination(compartmentRect);
 			addMiddleInterimDestination(compartmentRect);
 			addRightInterimDestination(compartmentRect);
@@ -158,9 +160,9 @@ public class TrainBuilder {
 				new AttributesBuilder<>(new AttributesTopography());
 
 		double width = numberOfEntranceAreas
-				* (TrainGeometry.AISLE_LENGTH + TrainGeometry.ENTRANCE_AREA_WIDTH)
-				+ TrainGeometry.AISLE_LENGTH + 4;
-		double height = TrainGeometry.getTrainInteriorWidth() + 4;
+				* (trainGeometry.AISLE_LENGTH + trainGeometry.ENTRANCE_AREA_WIDTH)
+				+ trainGeometry.AISLE_LENGTH + 4;
+		double height = trainGeometry.getTrainInteriorWidth() + 4;
 		attributesBuilder.setField("bounds", new VRectangle(0, 0, width, height));
 
 		final Topography topography = new Topography(attributesBuilder.build());
@@ -168,8 +170,8 @@ public class TrainBuilder {
 	}
 
 	private VShape createSourceShape(int entranceAreaIndex, EntranceSide entranceSide) {
-		Rectangle2D rect = TrainGeometry.getEntranceAreaRect(entranceAreaIndex);
-		double x = rect.getX() + (TrainGeometry.ENTRANCE_AREA_WIDTH - TrainGeometry.DOOR_WIDTH) / 2;
+		Rectangle2D rect = trainGeometry.getEntranceAreaRect(entranceAreaIndex);
+		double x = rect.getX() + (trainGeometry.ENTRANCE_AREA_WIDTH - trainGeometry.DOOR_WIDTH) / 2;
 		double y;
 		final double d = 0.1;
 		if (entranceSide == EntranceSide.BOTTOM) {
@@ -180,7 +182,7 @@ public class TrainBuilder {
 			throw new NullPointerException("entranceSide parameter must not be null");
 		}
 		// evtl. weniger breit als DOOR_WIDTH, weil Personen ja auch einen Durchmesser haben
-		return new VRectangle(x, y, TrainGeometry.DOOR_WIDTH, d);
+		return new VRectangle(x, y, trainGeometry.DOOR_WIDTH, d);
 	}
 	
 	private int[] spreadPassengers(int numberOfNewPassengers) {
@@ -196,14 +198,14 @@ public class TrainBuilder {
 	private void buildEndBlockades() {
 		double x, y1, y2;
 
-		Rectangle2D leftHalfCompartment = TrainGeometry.getHalfCompartmentRect(0, 1);
+		Rectangle2D leftHalfCompartment = trainGeometry.getHalfCompartmentRect(0, 1);
 		x = leftHalfCompartment.getX();
 		y1 = leftHalfCompartment.getY();
 		y2 = leftHalfCompartment.getY() + leftHalfCompartment.getHeight();
 		obstacleBuilder.buildVerticalWall(x, WallAlignment.BELOW, y1, y2);
 		
 		Rectangle2D rightHalfCompartment =
-				TrainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
+				trainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
 		x = rightHalfCompartment.getX() + rightHalfCompartment.getWidth();
 		y1 = rightHalfCompartment.getY();
 		y2 = rightHalfCompartment.getY() + rightHalfCompartment.getHeight();
@@ -211,8 +213,8 @@ public class TrainBuilder {
 	}
 
 	private void buildExitBlockades(int index) {
-		Rectangle2D entranceArea = TrainGeometry.getEntranceAreaRect(index);
-		final double halfCompartmentWidth = TrainGeometry.AISLE_LENGTH / 2;
+		Rectangle2D entranceArea = trainGeometry.getEntranceAreaRect(index);
+		final double halfCompartmentWidth = trainGeometry.AISLE_LENGTH / 2;
 		double x1 = entranceArea.getX() - halfCompartmentWidth;
 		double x2 = entranceArea.getX() + entranceArea.getWidth() + halfCompartmentWidth;
 		double y1, y2;
@@ -238,23 +240,23 @@ public class TrainBuilder {
 		buildHalfCompartment(index, 0);
 		buildHalfCompartment(index, 1);
 		
-		Rectangle2D rect = TrainGeometry.getCompartmentRect(index);
+		Rectangle2D rect = trainGeometry.getCompartmentRect(index);
 
 		// backrests between seat groups
 		double x = rect.getX() + rect.getWidth() / 2;
 		double y1 = rect.getY();
 		double y2 = rect.getY() + rect.getHeight();
-		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y1, y1 + TrainGeometry.BENCH_WIDTH);
-		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y2, y2 - TrainGeometry.BENCH_WIDTH);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y1, y1 + trainGeometry.BENCH_WIDTH);
+		obstacleBuilder.buildVerticalWall(x, WallAlignment.CENTER, y2, y2 - trainGeometry.BENCH_WIDTH);
 	}
 
 	private void buildHalfCompartment(int index, int subindex) {
 		if (index == 0 && subindex == 0 || index == numberOfEntranceAreas && subindex == 1) {
 			return;
 		}
-		Rectangle2D rect = TrainGeometry.getHalfCompartmentRect(index, subindex);
+		Rectangle2D rect = trainGeometry.getHalfCompartmentRect(index, subindex);
 		buildFourSeats(rect, rect.getY());
-		buildFourSeats(rect, rect.getY() + TrainGeometry.BENCH_WIDTH + TrainGeometry.AISLE_WIDTH);
+		buildFourSeats(rect, rect.getY() + trainGeometry.BENCH_WIDTH + trainGeometry.AISLE_WIDTH);
 
 		// train outer walls
 		double x1 = rect.getX();
@@ -267,12 +269,12 @@ public class TrainBuilder {
 	}
 
 	private void buildFourSeats(Rectangle2D halfCompartmentRect, double y) {
-		final double distanceCenterToBackrest = (halfCompartmentRect.getWidth() - TrainGeometry.DISTANCE_BETWEEN_FACING_BENCHES) / 4;
+		final double distanceCenterToBackrest = (halfCompartmentRect.getWidth() - trainGeometry.DISTANCE_BETWEEN_FACING_BENCHES) / 4;
 		double x1 = halfCompartmentRect.getX() + distanceCenterToBackrest;
 		double x2 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth() - distanceCenterToBackrest;
 		
 		double distanceFromSide;
-		distanceFromSide = TrainGeometry.BENCH_WIDTH / 4;
+		distanceFromSide = trainGeometry.BENCH_WIDTH / 4;
 		buildSeat(x1, y + distanceFromSide);
 		buildSeat(x2, y + distanceFromSide);
 		distanceFromSide *= 3;
@@ -281,13 +283,13 @@ public class TrainBuilder {
 		
 		// sides of benches
 		double y1 = y;
-		double y2 = y + TrainGeometry.BENCH_WIDTH;
+		double y2 = y + trainGeometry.BENCH_WIDTH;
 		x1 = halfCompartmentRect.getX();
-		x2 = x1 + TrainGeometry.getSeatDepth();
+		x2 = x1 + trainGeometry.getSeatDepth();
 		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.CENTER, x1, x2);
 		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 		x1 = halfCompartmentRect.getX() + halfCompartmentRect.getWidth();
-		x2 = x1 - TrainGeometry.getSeatDepth();
+		x2 = x1 - trainGeometry.getSeatDepth();
 		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.CENTER, x1, x2);
 		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.CENTER, x1, x2);
 	}
@@ -312,8 +314,8 @@ public class TrainBuilder {
 	}
 
 	private void buildEntranceArea(int index) {
-		final Rectangle2D rect = TrainGeometry.getEntranceAreaRect(index);
-		final double width = (rect.getHeight() - TrainGeometry.AISLE_ENTRANCE_WIDTH) / 2;
+		final Rectangle2D rect = trainGeometry.getEntranceAreaRect(index);
+		final double width = (rect.getHeight() - trainGeometry.AISLE_ENTRANCE_WIDTH) / 2;
 		final double x1 = rect.getX();
 		final double x2 = rect.getX() + rect.getWidth();
 		final double y1 = rect.getY();
@@ -325,7 +327,7 @@ public class TrainBuilder {
 		obstacleBuilder.buildVerticalWall(x2, WallAlignment.CENTER, y2, y2 - width);
 		
 		final double distanceToDoor =
-				(TrainGeometry.ENTRANCE_AREA_WIDTH - TrainGeometry.DOOR_WIDTH) / 2;
+				(trainGeometry.ENTRANCE_AREA_WIDTH - trainGeometry.DOOR_WIDTH) / 2;
 		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.BELOW, x1, x1 + distanceToDoor);
 		obstacleBuilder.buildHorizontalWall(y2, WallAlignment.ON_TOP,  x1, x1 + distanceToDoor);
 		obstacleBuilder.buildHorizontalWall(y1, WallAlignment.BELOW, x2, x2 - distanceToDoor);
