@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import scenario.SbahnGeometry;
 import scenario.TrainGeometry;
 
 /**
@@ -71,16 +72,16 @@ public class DocoptOptionsWrapper {
 		final String option = "--train-geometry";
 		String className = getOptionArgumentString(option);
 		if (className == null) {
-			className = TrainGeometry.class.getName();
+			return new SbahnGeometry();
 		}
 		try {
 			@SuppressWarnings("unchecked")
 			Class<TrainGeometry> c = (Class<TrainGeometry>) Class.forName(className);
 			return c.newInstance();
 		} catch (Exception e) {
-			throw new IllegalArgumentException("argument for option " + option + " must be a "
-					+ "fully qualified class name for a TrainGeometry class with a default "
-					+ "constructor.", e);
+			throw new IllegalArgumentException("argument for option " + option + " must be the "
+					+ "fully qualified class name of a concrete TrainGeometry class with a "
+					+ "public default constructor.", e);
 		}
 	}
 }
