@@ -88,7 +88,7 @@ public class TrainBuilder {
 					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
 			attributesBuilder.setField("startTime", stop.time);
 			attributesBuilder.setField("endTime", stop.time); // startTime == endTime -> no end time (apparently)
-			attributesBuilder.setField("spawnDelay", 1); // TODO aus daten ermitteln
+			attributesBuilder.setField("spawnDelay", 1.4); // from data: survey/rate/analysis.R
 			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
 			
