@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import scenario.SbahnGeometry;
+import scenario.Et423Geometry;
 import scenario.TrainGeometry;
 
 /**
@@ -72,7 +72,7 @@ public class DocoptOptionsWrapper {
 		final String option = "--train-geometry";
 		String className = getOptionArgumentString(option);
 		if (className == null) {
-			return new SbahnGeometry();
+			return new Et423Geometry();
 		}
 		try {
 			@SuppressWarnings("unchecked")
