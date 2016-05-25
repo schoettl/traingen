@@ -52,6 +52,14 @@ public class DocoptOptionsWrapper {
 		}
 	}
 
+	public double getOptionArgumentDouble(String option) {
+		try {
+			return Double.valueOf((String) options.get(option));
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("argument for " + option + " must be a floating point number.");
+		}
+	}
+
 	public boolean isFlagOptionPresent(String option) {
 		return (boolean) options.get(option);
 	}

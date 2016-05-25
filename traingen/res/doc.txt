@@ -11,6 +11,8 @@ options:
        the simulation time point of the stop; <side> must be either "top" or
        "bottom" (top view of scenario map); <number_people> is the total number
        of people entering the train.
+  --door-source-distance=METERS
+       distance between door and source [default: 0.0].
   --block-exits
        block exits so that agents are forced to walk to their seats inside the
        train.

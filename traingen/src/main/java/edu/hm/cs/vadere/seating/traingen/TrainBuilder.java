@@ -33,11 +33,13 @@ import topographycreator.model.TopographyBuilder;
  */
 public class TrainBuilder {
 
+	private static final double MEAN_INTER_ENTER_TIME = 1.4; // from data: survey/rate/analysis.R
 	private TopographyBuilder topographyBuilder;
 	private ObstacleBuilder obstacleBuilder;
 	private int numberOfEntranceAreas = 0;
 	/** Extra list of seats; for internal use only. */
 	private List<Target> seats;
+	private double doorToSourceDistance;
 
 	private TrainGeometry trainGeometry;
 	private Random random;
@@ -70,6 +72,10 @@ public class TrainBuilder {
 		}
 	}
 
+	public void setDoorToSourceDistance(double doorToSourceDistance) {
+		this.doorToSourceDistance  = doorToSourceDistance;
+	}
+
 	public void blockExits() {
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			buildExitBlockades(i);
@@ -88,7 +94,8 @@ public class TrainBuilder {
 					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
 			attributesBuilder.setField("startTime", stop.time);
 			attributesBuilder.setField("endTime", stop.time); // startTime == endTime -> no end time (apparently)
-			attributesBuilder.setField("spawnDelay", 1.4); // from data: survey/rate/analysis.R
+			attributesBuilder.setField("spawnDelay", -1); // use distributionParameters instead
+			attributesBuilder.setField("distributionParameters", Collections.singletonList(MEAN_INTER_ENTER_TIME));
 			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
 			
@@ -170,19 +177,19 @@ public class TrainBuilder {
 	}
 
 	private VShape createSourceShape(int entranceAreaIndex, EntranceSide entranceSide) {
-		Rectangle2D rect = trainGeometry.getEntranceAreaRect(entranceAreaIndex);
-		double x = rect.getX() + (trainGeometry.getEntranceAreaWidth() - trainGeometry.getDoorWidth()) / 2;
+		Rectangle2D entranceArea = trainGeometry.getEntranceAreaRect(entranceAreaIndex);
+		double x = entranceArea.getX() + (trainGeometry.getEntranceAreaWidth() - trainGeometry.getDoorWidth()) / 2;
 		double y;
-		final double d = 0.1;
+		final double thickness = 0.1;
 		if (entranceSide == EntranceSide.BOTTOM) {
-			y = rect.getY() - d;
+			y = entranceArea.getY() - thickness - doorToSourceDistance;
 		} else if (entranceSide == EntranceSide.TOP) {
-			y = rect.getY() + rect.getHeight();
+			y = entranceArea.getY() + entranceArea.getHeight() + doorToSourceDistance;
 		} else {
 			throw new NullPointerException("entranceSide parameter must not be null");
 		}
 		// evtl. weniger breit als getDoorWidth(), weil Personen ja auch einen Durchmesser haben
-		return new VRectangle(x, y, trainGeometry.getDoorWidth(), d);
+		return new VRectangle(x, y, trainGeometry.getDoorWidth(), thickness);
 	}
 	
 	private int[] spreadPassengers(int numberOfNewPassengers) {

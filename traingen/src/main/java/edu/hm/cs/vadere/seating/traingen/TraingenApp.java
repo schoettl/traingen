@@ -43,6 +43,7 @@ public class TraingenApp {
 			TrainGeometry trainGeometry = opts.getTrainGeometry();
 			TrainBuilder trainBuilder = new TrainBuilder(trainGeometry, random);
 			trainBuilder.createTrain(opts.getOptionArgumentInt("--number-entrance-areas"));
+			trainBuilder.setDoorToSourceDistance(opts.getOptionArgumentDouble("--door-source-distance"));
 			if (opts.isFlagOptionPresent("--block-exits")) {
 				trainBuilder.blockExits();
 			}
