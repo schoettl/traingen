@@ -133,6 +133,7 @@ public class TrainBuilder {
 		for (Integer seatIndex : list.subList(0, numberOfPersons)) {
 			Target target = seats.get(seatIndex);
 			Pedestrian person = new Pedestrian(new AttributesPedestrian(), random);
+			person.setNextTargetListIndex(0);
 			person.setPosition(target.getShape().getCentroid());
 			topographyBuilder.addPedestrian(new PedestrianWrapper(person));
 		}
