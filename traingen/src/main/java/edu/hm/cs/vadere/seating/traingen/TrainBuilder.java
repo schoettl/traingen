@@ -93,7 +93,10 @@ public class TrainBuilder {
 			AttributesBuilder<AttributesSource> attributesBuilder =
 					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
 			attributesBuilder.setField("startTime", stop.time);
-			attributesBuilder.setField("endTime", stop.time); // startTime == endTime -> no end time (apparently)
+			// TODO define endTime
+			// TODO spawnNumber is number of spawns at 1 event. there should be n events and spawnNumber == 1
+			// too bad... this way i cannot ensure a certain number while using a distribution
+			attributesBuilder.setField("endTime", stop.time);
 			attributesBuilder.setField("spawnDelay", -1); // use distributionParameters instead
 			attributesBuilder.setField("distributionParameters", Collections.singletonList(MEAN_INTER_ENTER_TIME));
 			attributesBuilder.setField("spawnNumber", numbersPerDoor[i]);
