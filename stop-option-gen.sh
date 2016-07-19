@@ -11,12 +11,6 @@ usage: $PROGNAME < time-and-enter.txt
 EOF
 }
 
-# $1: error message
-exitWithError() {
-    echo "$1" >&2
-    exit 1
-}
-
 main() {
     if [[ $# != 0 ]]; then
         printUsage
