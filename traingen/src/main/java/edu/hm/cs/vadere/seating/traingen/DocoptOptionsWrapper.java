@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import scenario.Et423Geometry;
-import scenario.TrainGeometry;
+import org.vadere.state.scenario.Et423Geometry;
+import org.vadere.state.scenario.TrainGeometry;
 
 /**
  * This is a wrapper class around the options Map returned by the <tt>Docopt.parse(...)</tt> method.

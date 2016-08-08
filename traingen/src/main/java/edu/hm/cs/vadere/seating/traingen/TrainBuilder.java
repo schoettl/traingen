@@ -6,22 +6,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import attributes.AttributesBuilder;
-import attributes.scenario.AttributesPedestrian;
-import attributes.scenario.AttributesSource;
-import attributes.scenario.AttributesTarget;
-import attributes.scenario.AttributesTopography;
+import org.vadere.gui.topographycreator.model.AgentWrapper;
+import org.vadere.gui.topographycreator.model.TopographyBuilder;
+import org.vadere.state.attributes.AttributesBuilder;
+import org.vadere.state.attributes.scenario.AttributesAgent;
+import org.vadere.state.attributes.scenario.AttributesSource;
+import org.vadere.state.attributes.scenario.AttributesTarget;
+import org.vadere.state.attributes.scenario.AttributesTopography;
+import org.vadere.state.scenario.Pedestrian;
+import org.vadere.state.scenario.Source;
+import org.vadere.state.scenario.Target;
+import org.vadere.state.scenario.Topography;
+import org.vadere.state.scenario.TrainGeometry;
+import org.vadere.util.geometry.shapes.VRectangle;
+import org.vadere.util.geometry.shapes.VShape;
+
 import edu.hm.cs.vadere.seating.traingen.ObstacleBuilder.WallAlignment;
 import edu.hm.cs.vadere.seating.traingen.Stop.EntranceSide;
-import geometry.shapes.VRectangle;
-import geometry.shapes.VShape;
-import scenario.Pedestrian;
-import scenario.Source;
-import scenario.Target;
-import scenario.Topography;
-import scenario.TrainGeometry;
-import topographycreator.model.PedestrianWrapper;
-import topographycreator.model.TopographyBuilder;
 
 /**
  * Builder for train topographies. Words like "left", "right", "top", and "bottom" refer to the map
@@ -135,10 +136,10 @@ public class TrainBuilder {
 		Collections.shuffle(list, random);
 		for (Integer seatIndex : list.subList(0, numberOfPersons)) {
 			Target target = seats.get(seatIndex);
-			Pedestrian person = new Pedestrian(new AttributesPedestrian(), random);
+			Pedestrian person = new Pedestrian(new AttributesAgent(), random);
 			person.setNextTargetListIndex(0);
 			person.setPosition(target.getShape().getCentroid());
-			topographyBuilder.addPedestrian(new PedestrianWrapper(person));
+			topographyBuilder.addPedestrian(new AgentWrapper(person));
 		}
 	}
 
@@ -176,7 +177,7 @@ public class TrainBuilder {
 		double height = trainGeometry.getTrainInteriorWidth() + 4;
 		attributesBuilder.setField("bounds", new VRectangle(0, 0, width, height));
 
-		final Topography topography = new Topography(attributesBuilder.build());
+		final Topography topography = new Topography(attributesBuilder.build(), new AttributesAgent());
 		return new TopographyBuilder(topography);
 	}
 

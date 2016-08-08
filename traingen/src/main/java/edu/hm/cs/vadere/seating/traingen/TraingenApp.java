@@ -9,10 +9,9 @@ import java.nio.file.Paths;
 import java.util.Random;
 
 import org.docopt.Docopt;
-
-import scenario.Topography;
-import scenario.TrainGeometry;
-import topographycreator.utils.JSONWriter;
+import org.vadere.gui.topographycreator.utils.JSONWriter;
+import org.vadere.state.scenario.Topography;
+import org.vadere.state.scenario.TrainGeometry;
 
 /**
  * See file referenced by DOC_FILENAME for documentation.

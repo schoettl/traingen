@@ -1,9 +1,9 @@
 package edu.hm.cs.vadere.seating.traingen;
 
-import attributes.scenario.AttributesObstacle;
-import geometry.shapes.VRectangle;
-import scenario.Obstacle;
-import topographycreator.model.TopographyBuilder;
+import org.vadere.gui.topographycreator.model.TopographyBuilder;
+import org.vadere.state.attributes.scenario.AttributesObstacle;
+import org.vadere.state.scenario.Obstacle;
+import org.vadere.util.geometry.shapes.VRectangle;
 
 public class ObstacleBuilder {
 	
