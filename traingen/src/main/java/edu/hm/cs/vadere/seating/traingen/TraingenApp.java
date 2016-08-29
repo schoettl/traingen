@@ -1,20 +1,18 @@
 package edu.hm.cs.vadere.seating.traingen;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Random;
 
+import org.apache.commons.io.IOUtils;
 import org.docopt.Docopt;
 import org.vadere.gui.topographycreator.utils.JSONWriter;
 import org.vadere.state.scenario.Topography;
 import org.vadere.state.scenario.TrainGeometry;
 
 /**
- * See file referenced by DOC_FILENAME for documentation.
+ * See resource file referenced by DOC_FILENAME for documentation.
  * 
  * @author Jakob Schöttl
  *
@@ -22,14 +20,19 @@ import org.vadere.state.scenario.TrainGeometry;
 public class TraingenApp {
 
 	// https://github.com/docopt/docopt.java
-	public static final String DOC_FILENAME = "res/doc.txt";
+	private static final String DOC_RESOURCE_NAME = "/doc.txt";
 
 	public static void main(String[] args) {
-		try (InputStream doc = new FileInputStream(DOC_FILENAME)) {
-			DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(doc).parse(args));
+		try (InputStream doc = getHelpMessageResourceAsStream()) {
+			if (doc == null) {
+				throw new IOException("could not open help resource");
+			}
+
+			final String helpMessage = IOUtils.toString(doc, "UTF-8");
+			final DocoptOptionsWrapper opts = new DocoptOptionsWrapper(new Docopt(helpMessage).parse(args));
 			//System.err.println(opts.getOptionMap());
 			if (opts.isFlagOptionPresent("--help")) {
-				Files.lines(Paths.get(DOC_FILENAME)).forEach(System.out::println);
+				System.out.println(helpMessage);
 				return;
 			}
 			
@@ -66,9 +69,13 @@ public class TraingenApp {
 			}
 
 		} catch (IOException e) {
-			System.err.println("file '" + DOC_FILENAME
+			System.err.println("resource file '" + DOC_RESOURCE_NAME
 					+ "' cannot be opened but is required (for docopt).");
 			e.printStackTrace();
 		}
+	}
+
+	private static InputStream getHelpMessageResourceAsStream() {
+		return TraingenApp.class.getResourceAsStream(DOC_RESOURCE_NAME);
 	}
 }
