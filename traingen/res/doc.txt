@@ -21,7 +21,7 @@ options:
   -i, --interim-destinations
        add interim destinations in the aisle (three for each compartment).
   -p, --number-sitting-persons=N
-       number of already sitting persons, randomly placed.
+       number of already sitting persons, randomly placed [default: 0].
   --random-seed=X
        generate the train using X as seed for the random number generator; if
        this option is not present, a random seed is used.
