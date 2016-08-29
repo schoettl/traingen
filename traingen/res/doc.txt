@@ -28,6 +28,7 @@ options:
   --train-geometry=CLASSNAME
        use specified TrainGeometry class. the specified class must extend
        TrainGeometry and must provide a default constructor.
+       by default, the geometry for ET423 is used.
   --annotate
        [not working] annotate JSON with comments for post-processing.
   -o, --output-file=FILE
