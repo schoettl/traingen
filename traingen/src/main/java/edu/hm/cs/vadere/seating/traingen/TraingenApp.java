@@ -60,7 +60,7 @@ public class TraingenApp {
 
 			String outputFile = opts.getOptionArgumentString("--output-file");
 			if (outputFile == null) {
-				// JSONWriter.writeTopography(topography, System.out);
+				JSONWriter.writeTopography(topography, System.out);
 			} else {
 				JSONWriter.writeTopography(topography, new File(outputFile));
 			}
