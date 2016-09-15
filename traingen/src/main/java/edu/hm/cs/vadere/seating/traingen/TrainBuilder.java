@@ -97,6 +97,7 @@ public class TrainBuilder {
 			attributesBuilder.setField("startTime", stop.time);
 			attributesBuilder.setField("endTime", stop.time + 1e10);
 			attributesBuilder.setField("distributionParameters", Collections.singletonList(MEAN_INTER_ENTER_TIME));
+			// omit this line to use default constant distribution:
 			attributesBuilder.setField("interSpawnTimeDistribution", ExponentialDistribution.class.getName());
 			attributesBuilder.setField("maxSpawnNumberTotal", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
