@@ -12,7 +12,7 @@ import org.vadere.state.scenario.Topography;
 import org.vadere.state.scenario.TrainGeometry;
 
 /**
- * See resource file referenced by DOC_FILENAME for documentation.
+ * See resource file referenced by DOC_RESOURCE_NAME for documentation.
  * 
  * @author Jakob Schöttl
  *
