@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.vadere.gui.topographycreator.model.AgentWrapper;
 import org.vadere.gui.topographycreator.model.TopographyBuilder;
 import org.vadere.state.attributes.AttributesBuilder;
@@ -96,6 +97,7 @@ public class TrainBuilder {
 			attributesBuilder.setField("startTime", stop.time);
 			attributesBuilder.setField("endTime", stop.time + 1e10);
 			attributesBuilder.setField("distributionParameters", Collections.singletonList(MEAN_INTER_ENTER_TIME));
+			attributesBuilder.setField("interSpawnTimeDistribution", ExponentialDistribution.class.getName());
 			attributesBuilder.setField("maxSpawnNumberTotal", numbersPerDoor[i]);
 			attributesBuilder.setField("spawnAtRandomPositions", true);
 			
