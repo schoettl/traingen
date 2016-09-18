@@ -7,7 +7,7 @@ import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.docopt.Docopt;
-import org.vadere.gui.topographycreator.utils.JSONWriter;
+import org.vadere.gui.topographycreator.utils.TopographyJsonWriter;
 import org.vadere.state.scenario.Topography;
 import org.vadere.state.scenario.TrainGeometry;
 
@@ -63,9 +63,9 @@ public class TraingenApp {
 
 			String outputFile = opts.getOptionArgumentString("--output-file");
 			if (outputFile == null) {
-				JSONWriter.writeTopography(topography, System.out);
+				TopographyJsonWriter.writeTopography(topography, System.out);
 			} else {
-				JSONWriter.writeTopography(topography, new File(outputFile));
+				TopographyJsonWriter.writeTopography(topography, new File(outputFile));
 			}
 
 		} catch (IOException e) {
