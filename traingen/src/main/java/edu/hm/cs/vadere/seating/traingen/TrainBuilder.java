@@ -108,19 +108,11 @@ public class TrainBuilder {
 	}
 
 	public void addInterimDestinations() {
-		Rectangle2D compartmentRect;
-		// leftmost compartment:
-		compartmentRect = trainGeometry.getCompartmentRect(0);
-		addRightInterimDestination(compartmentRect);
-		// rightmost compartment:
-		compartmentRect = trainGeometry.getCompartmentRect(numberOfEntranceAreas);
-		addLeftInterimDestination(compartmentRect);
+		addLeftHalfCompartmentInterimDestination();
+		addRightHalfCompartmentInterimDestination();
 		// all other compartments inbetween:
 		for (int i = 1; i < numberOfEntranceAreas; i++) {
-			compartmentRect = trainGeometry.getCompartmentRect(i);
-			addLeftInterimDestination(compartmentRect);
-			addMiddleInterimDestination(compartmentRect);
-			addRightInterimDestination(compartmentRect);
+			addInterimDestination(i);
 		}
 	}
 
@@ -154,16 +146,19 @@ public class TrainBuilder {
 		return result;
 	}
 
-	private void addMiddleInterimDestination(Rectangle2D compartmentRect) {
-		buildTarget(compartmentRect.getCenterX(), compartmentRect.getCenterY());
+	private void addInterimDestination(int compartmentIndex) {
+		final Rectangle2D rect = trainGeometry.getCompartmentRect(compartmentIndex);
+		buildAisleTarget(rect);
 	}
 
-	private void addLeftInterimDestination(Rectangle2D compartmentRect) {
-		buildTarget(compartmentRect.getMinX(), compartmentRect.getCenterY());
+	private void addLeftHalfCompartmentInterimDestination() {
+		final Rectangle2D rect = trainGeometry.getHalfCompartmentRect(0, 1);
+		buildAisleTarget(rect);
 	}
 
-	private void addRightInterimDestination(Rectangle2D compartmentRect) {
-		buildTarget(compartmentRect.getMaxX(), compartmentRect.getCenterY());
+	private void addRightHalfCompartmentInterimDestination() {
+		final Rectangle2D rect = trainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
+		buildAisleTarget(rect);
 	}
 
 	private TopographyBuilder createTopographyBuilder() {
@@ -311,15 +306,24 @@ public class TrainBuilder {
 		seats.add(target);
 	}
 
-	private void buildTarget(double x, double y) {
-		topographyBuilder.addTarget(createTarget(x, y));
+	private void buildAisleTarget(Rectangle2D compartmentRect) {
+		final double x = compartmentRect.getMinX();
+		final double y = compartmentRect.getCenterY() - trainGeometry.getAisleWidth() / 2;
+		final double w = compartmentRect.getWidth();
+		final double h = trainGeometry.getAisleWidth();
+		topographyBuilder.addTarget(createTarget(x, y, w, h));
 	}
 	
 	/** Create point target (size as small as possible). */
 	private Target createTarget(double x, double y) {
 		final double targetDiameter = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
-		VShape rect = new VRectangle(x - targetDiameter / 2, y - targetDiameter / 2,
-				targetDiameter, targetDiameter);
+		x = x - targetDiameter / 2;
+		y = y - targetDiameter / 2;
+		return createTarget(x, y, targetDiameter, targetDiameter);
+	}
+
+	private Target createTarget(double x, double y, double w, double h) {
+		VShape rect = new VRectangle(x, y, w, h);
 		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
 		return new Target(attributes);
 	}
