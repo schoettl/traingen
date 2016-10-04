@@ -18,8 +18,8 @@ options:
        train.
   --block-ends
        block the ends of the train.
-  -i, --interim-destinations
-       add interim destinations in the aisle (three for each compartment).
+  -c, --compartment-targets
+       add a target for each compartment in the aisle.
   -p, --number-sitting-persons=N
        number of already sitting persons, randomly placed [default: 0].
   --random-seed=X

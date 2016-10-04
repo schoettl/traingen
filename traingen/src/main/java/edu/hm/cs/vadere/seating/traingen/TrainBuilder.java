@@ -107,12 +107,12 @@ public class TrainBuilder {
 		}
 	}
 
-	public void addInterimDestinations() {
-		addLeftHalfCompartmentInterimDestination();
-		addRightHalfCompartmentInterimDestination();
+	public void addCompartmentTargets() {
+		addLeftHalfCompartmentTarget();
+		addRightHalfCompartmentTarget();
 		// all other compartments inbetween:
 		for (int i = 1; i < numberOfEntranceAreas; i++) {
-			addInterimDestination(i);
+			addCompartmentTarget(i);
 		}
 	}
 
@@ -146,17 +146,17 @@ public class TrainBuilder {
 		return result;
 	}
 
-	private void addInterimDestination(int compartmentIndex) {
+	private void addCompartmentTarget(int compartmentIndex) {
 		final Rectangle2D rect = trainGeometry.getCompartmentRect(compartmentIndex);
 		buildAisleTarget(rect);
 	}
 
-	private void addLeftHalfCompartmentInterimDestination() {
+	private void addLeftHalfCompartmentTarget() {
 		final Rectangle2D rect = trainGeometry.getHalfCompartmentRect(0, 1);
 		buildAisleTarget(rect);
 	}
 
-	private void addRightHalfCompartmentInterimDestination() {
+	private void addRightHalfCompartmentTarget() {
 		final Rectangle2D rect = trainGeometry.getHalfCompartmentRect(numberOfEntranceAreas, 0);
 		buildAisleTarget(rect);
 	}

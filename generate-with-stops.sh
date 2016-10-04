@@ -23,7 +23,7 @@ main() {
     stopOptions=$("$PROGDIR"/stop-option-gen.sh < "$timesCountsFile")
 
     otherOptions="--number-entrance-areas=12 \
---interim-destinations \
+--compartment-targets \
 --door-source-distance=0.5 \
 --block-ends --block-exits \
 --random-seed=0 \

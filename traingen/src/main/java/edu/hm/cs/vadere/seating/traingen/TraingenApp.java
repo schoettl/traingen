@@ -55,8 +55,8 @@ public class TraingenApp {
 			for (Stop s : opts.getStops()) {
 				trainBuilder.addStop(s);
 			}
-			if (opts.isFlagOptionPresent("--interim-destinations")) {
-				trainBuilder.addInterimDestinations();
+			if (opts.isFlagOptionPresent("--compartment-targets")) {
+				trainBuilder.addCompartmentTargets();
 			}
 			trainBuilder.placePersons(opts.getOptionArgumentInt("--number-sitting-persons"));
 			Topography topography = trainBuilder.getResult();
