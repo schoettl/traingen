@@ -33,5 +33,7 @@ options:
        [not working] annotate JSON with comments for post-processing.
   -o, --output-file=FILE
        specify an output file; if not specified, output goes to stdout.
+  --clipboard
+       copy output to the clipboard.
   -h, --help
        print this help message.

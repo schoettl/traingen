@@ -1,5 +1,8 @@
 package edu.hm.cs.vadere.seating.traingen;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +11,7 @@ import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.docopt.Docopt;
 import org.vadere.gui.topographycreator.utils.TopographyJsonWriter;
+import org.vadere.simulator.projects.io.JsonConverter;
 import org.vadere.state.scenario.Topography;
 import org.vadere.state.scenario.TrainGeometry;
 
@@ -66,6 +70,12 @@ public class TraingenApp {
 				TopographyJsonWriter.writeTopography(topography, System.out);
 			} else {
 				TopographyJsonWriter.writeTopography(topography, new File(outputFile));
+			}
+			if (opts.isFlagOptionPresent("--clipboard")) {
+				String json = JsonConverter.serializeTopography(topography);
+				StringSelection selection = new StringSelection(json);
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
 			}
 
 		} catch (IOException e) {
