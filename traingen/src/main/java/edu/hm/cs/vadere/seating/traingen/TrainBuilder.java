@@ -301,7 +301,11 @@ public class TrainBuilder {
 	}
 
 	private void buildSeat(double x, double y) {
-		Target target = createTarget(x, y);
+//		final double w = trainGeometry.getDistanceBetweenFacingBenches() * 0.7;
+//		final double h = trainGeometry.getBenchWidth() * 0.35;
+		final double w, h;
+		w = h = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
+		Target target = createTargetCenteredAround(x, y, w, h);
 		topographyBuilder.addTarget(target);
 		seats.add(target);
 	}
@@ -314,18 +318,23 @@ public class TrainBuilder {
 		topographyBuilder.addTarget(createTarget(x, y, w, h));
 	}
 	
-	/** Create point target (size as small as possible). */
-	private Target createTarget(double x, double y) {
-		final double targetDiameter = 0.1; // depends on grid resolution, see ObstacleBuilder.WALL_THICKNESS
-		x = x - targetDiameter / 2;
-		y = y - targetDiameter / 2;
-		return createTarget(x, y, targetDiameter, targetDiameter);
+	private Target createTargetCenteredAround(double x, double y, double w, double h) {
+		x = x - w / 2;
+		y = y - h / 2;
+		return createTarget(x, y, w, h);
 	}
 
 	private Target createTarget(double x, double y, double w, double h) {
 		VShape rect = new VRectangle(x, y, w, h);
-		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
+		final AttributesTarget attributes = createTargetAttributes(rect, 0.5);
 		return new Target(attributes);
+	}
+
+	private AttributesTarget createTargetAttributes(VShape rect, double reachedDistance) {
+		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
+		final AttributesBuilder<AttributesTarget> builder = new AttributesBuilder<>(attributes);
+		builder.setField("deletionDistance", reachedDistance);
+		return builder.build();
 	}
 
 	private void buildEntranceArea(int index) {
