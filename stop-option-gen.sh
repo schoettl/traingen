@@ -20,7 +20,7 @@ main() {
     cat \
     | awk '{ split($1, a, ":"); s = a[1]*3600+a[2]*60; print s, $2 }' \
     | awk 'NR==1{ t=$1 }; { print ($1-t), $2 }' \
-    | awk '{ print "--stop=" $1 ",top," $2 }' \
+    | awk '{ printf "--stop=%s,top,%d\n", $1, $2 }' \
     | awk -v ab=1 '{ if(ab) print $0 " \\"; else print }'
     # ab = append backslash
 }
