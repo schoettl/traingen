@@ -30,9 +30,13 @@ main() {
         esac
     fi
 
+    # could also be an option. halves the count so that we have counts for one wagon
+    declare countFactor=0.5
+
     cat \
     | awk '{ split($1, a, ":"); s = a[1]*3600+a[2]*60; print s, $2 }' \
     | awk 'NR==1{ t=$1 }; { print ($1-t), $2 }' \
+    | awk -v f="$countFactor" '{ print $1, $2*f }' \
     | awk '{ printf "--stop=%s,top,%d\n", $1, $2 }' \
     | awk -v ab="$appendBackslash" '{ if(ab) print $0 " \\"; else print }'
 }
