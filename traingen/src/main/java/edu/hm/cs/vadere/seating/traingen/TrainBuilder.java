@@ -171,7 +171,7 @@ public class TrainBuilder {
 		double height = trainGeometry.getTrainInteriorWidth() + 4;
 		attributesBuilder.setField("bounds", new VRectangle(0, 0, width, height));
 
-		final Topography topography = new Topography(attributesBuilder.build(), new AttributesAgent());
+		final Topography topography = new Topography(attributesBuilder.build(), new AttributesAgent(), null);
 		return new TopographyBuilder(topography);
 	}
 
