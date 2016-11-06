@@ -9,7 +9,6 @@ import java.util.Random;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.vadere.gui.topographycreator.model.AgentWrapper;
 import org.vadere.gui.topographycreator.model.TopographyBuilder;
-import org.vadere.state.attributes.AttributesBuilder;
 import org.vadere.state.attributes.scenario.AttributesAgent;
 import org.vadere.state.attributes.scenario.AttributesSource;
 import org.vadere.state.attributes.scenario.AttributesTarget;
@@ -92,17 +91,16 @@ public class TrainBuilder {
 		int[] numbersPerDoor = spreadPassengers(stop.numberOfNewPassengers);
 		for (int i = 0; i < numberOfEntranceAreas; i++) {
 			VShape shape = createSourceShape(i, stop.entranceSide);
-			AttributesBuilder<AttributesSource> attributesBuilder =
-					new AttributesBuilder<>(new AttributesSource(sourceIdCounter++, shape));
-			attributesBuilder.setField("startTime", stop.time);
-			attributesBuilder.setField("endTime", stop.time + 1e10);
-			attributesBuilder.setField("distributionParameters", Collections.singletonList(MEAN_INTER_ENTER_TIME));
+			AttributesSource attributesSource = new AttributesSource(sourceIdCounter++, shape);
+			attributesSource.setStartTime(stop.time);
+			attributesSource.setEndTime(stop.time + 1e10);
+			attributesSource.setDistributionParameters(Collections.singletonList(MEAN_INTER_ENTER_TIME));
 			// omit this line to use default constant distribution:
-			attributesBuilder.setField("interSpawnTimeDistribution", ExponentialDistribution.class.getName());
-			attributesBuilder.setField("maxSpawnNumberTotal", numbersPerDoor[i]);
-			attributesBuilder.setField("spawnAtRandomPositions", true);
+			attributesSource.setInterSpawnTimeDistribution(ExponentialDistribution.class.getName());
+			attributesSource.setMaxSpawnNumberTotal(numbersPerDoor[i]);
+			attributesSource.setSpawnAtRandomPositions(true);
 			
-			final Source source = new Source(attributesBuilder.build());
+			final Source source = new Source(attributesSource);
 			topographyBuilder.addSource(source);
 		}
 	}
@@ -162,16 +160,14 @@ public class TrainBuilder {
 	}
 
 	private TopographyBuilder createTopographyBuilder() {
-		AttributesBuilder<AttributesTopography> attributesBuilder =
-				new AttributesBuilder<>(new AttributesTopography());
-
+		AttributesTopography attributesTopography = new AttributesTopography();
 		double width = numberOfEntranceAreas
 				* (trainGeometry.getAisleLength() + trainGeometry.getEntranceAreaWidth())
 				+ trainGeometry.getAisleLength() + 4;
 		double height = trainGeometry.getTrainInteriorWidth() + 4;
-		attributesBuilder.setField("bounds", new VRectangle(0, 0, width, height));
+		attributesTopography.setBounds(new VRectangle(0, 0, width, height));
 
-		final Topography topography = new Topography(attributesBuilder.build(), new AttributesAgent(), null);
+		final Topography topography = new Topography(attributesTopography, new AttributesAgent(), null);
 		return new TopographyBuilder(topography);
 	}
 
@@ -332,9 +328,8 @@ public class TrainBuilder {
 
 	private AttributesTarget createTargetAttributes(VShape rect, double reachedDistance) {
 		AttributesTarget attributes = new AttributesTarget(rect, targetIdCounter++, false);
-		final AttributesBuilder<AttributesTarget> builder = new AttributesBuilder<>(attributes);
-		builder.setField("deletionDistance", reachedDistance);
-		return builder.build();
+		attributes.setReachedDistance(reachedDistance);
+		return attributes;
 	}
 
 	private void buildEntranceArea(int index) {

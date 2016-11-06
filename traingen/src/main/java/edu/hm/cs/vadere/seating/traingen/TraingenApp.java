@@ -11,9 +11,9 @@ import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.docopt.Docopt;
 import org.vadere.gui.topographycreator.utils.TopographyJsonWriter;
-import org.vadere.simulator.projects.io.JsonConverter;
 import org.vadere.state.scenario.Topography;
 import org.vadere.state.scenario.TrainGeometry;
+import org.vadere.state.util.StateJsonConverter;
 
 /**
  * See resource file referenced by DOC_RESOURCE_NAME for documentation.
@@ -72,7 +72,7 @@ public class TraingenApp {
 				TopographyJsonWriter.writeTopography(topography, new File(outputFile));
 			}
 			if (opts.isFlagOptionPresent("--clipboard")) {
-				String json = JsonConverter.serializeTopography(topography);
+				String json = StateJsonConverter.serializeTopography(topography);
 				StringSelection selection = new StringSelection(json);
 				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clipboard.setContents(selection, selection);
